@@ -1,27 +1,50 @@
-# Data
-data/
-checkpoints/
+# ============================================================
+# Project-Specific Files
+# ============================================================
+data/                   # Dataset directories
+checkpoints/            # Model weights
+logs/                   # Training logs (optional)
 
+# ============================================================
 # Python
+# ============================================================
 __pycache__/
 *.py[cod]
-*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.pyproj
+*.env
 
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
+.env/
+.venv/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-# PyCharm/IDEs
+# ============================================================
+# IDEs
+# ============================================================
+# PyCharm
 .idea/
 *.iml
 *.ipr
 *.iws
-.vscode/
 
-# OS
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ============================================================
+# OS/Editor Junk
+# ============================================================
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
