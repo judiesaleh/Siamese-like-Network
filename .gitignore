@@ -1,7 +1,8 @@
 # ============================================================
 # Project-Specific Files
 # ============================================================
-src/data/                   # Dataset directories
+data/                   # Dataset directories
+src/data/
 checkpoints/            # Model weights
 logs/                   # Training logs (optional)
 
