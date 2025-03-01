@@ -1,8 +1,12 @@
 # ============================================================
 # Project-Specific Files
 # ============================================================
-src/data/cifar-10-batches-py/                   # Dataset directories
-src/data/cifar-10-python.tar.gz
+/data                  # Dataset directories
+/src/data/*
+
+# But do not ignore Python files
+!/src/data/*.py
+
 checkpoints/            # Model weights
 logs/                   # Training logs (optional)
 
