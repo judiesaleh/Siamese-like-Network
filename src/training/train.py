@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torch import device, Tensor
 from typing import Any, Callable, List
 
-
+# For tracking loss for each epoch/batches
 class LossMonitor:
     def __init__(self) -> None:
         self.losses = []
@@ -16,12 +16,17 @@ class LossMonitor:
     def get_average(self) -> float:
         return sum(self.losses) / len(self.losses) if self.losses else 0.0
 
+# For tracking accuracy for each epoch/batches
 class AccuracyMonitor:
     def __init__(self) -> None:
         self.correct = 0
         self.total = 0
 
     def update(self, prediction: Tensor, labels: Tensor) -> None:
+        # (prediction == labels) produces a boolean True (1) or False (0)
+        # That gets converted into a float e.g. 1.0
+        # sum() adds up all 1.0s to count the correct predictions in the batch
+        # .item() extracts the numerical value from the tensor
         self.correct += (prediction == labels).float().sum().item()
         self.total += labels.size(0)
 
