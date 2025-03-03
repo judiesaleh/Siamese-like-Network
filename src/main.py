@@ -1,7 +1,7 @@
 import torch
+from torch.utils.checkpoint import checkpoint
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
 from data.paired_dataset import PairedDataset
 from models.siamese_network import SiameseNetwork
 from training.train import train_model
@@ -52,18 +52,27 @@ def main() -> None:
     test_loader = DataLoader(paired_test_dataset, batch_size=32, shuffle=False)
 
     # Initialize the Siamese network model
-    model = SiameseNetwork()
+    model = SiameseNetwork(freeze=True).to(device)
 
     # Define the loss function and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    # Set the device (GPU if available, else CPU)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    def save_checkpoint_callback(model, epoch, loss):
+        checkpoint = {
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss
+        }
+        checkpoint_path = f'checkpoint_epoch_{epoch+1}.pth'
+        torch.save(checkpoint, checkpoint_path)
+        print(f"Checkpoint saved to {checkpoint_path}")
 
     # Train the model
-    num_epochs = 5  # Adjust as needed
-    train_model(model, train_loader, criterion, optimizer, num_epochs, device)
+    num_epochs = 5
+    callbacks = [save_checkpoint_callback]
+    train_model(model, train_loader, criterion, optimizer, num_epochs, device, callbacks=callbacks)
 
     # Validate/Test the model
     val_loss, val_acc = validate_model(model, test_loader, criterion, device)

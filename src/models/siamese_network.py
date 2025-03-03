@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 class SiameseNetwork(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, freeze_pretrained: bool = False) -> None:
         """
         Initializes the Siamese network using a pretrained ResNet18 model.
         The final fully connected layer of ResNet18 is replaced with an identity layer
@@ -18,6 +18,12 @@ class SiameseNetwork(nn.Module):
         # Remove the final classification layer so that the model outputs embeddings
         # ResNet18, with its configuration, ends with a fully
         # connected layer
+
+        # Optional freezing of the pretrained model
+        if freeze_pretrained:
+            for param in self.feature_extractor.parameters():
+                param.requires_grad = False
+
         """
         nn.Identity() is a PyTorch layer that simply returns
         its input without any change

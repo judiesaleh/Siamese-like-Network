@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from models.siamese_network import SiameseNetwork
+from src.data.paired_dataset import PairedDataset
 from training.validate import validate_model
 
 def test_model(checkpoint_path: str) -> None:
@@ -16,13 +17,12 @@ def test_model(checkpoint_path: str) -> None:
     # Load the test dataset
     test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
     # Create the paired dataset for testing
-    from data.paired_dataset import PairedDataset  # import here if not already imported
     paired_test_dataset = PairedDataset(test_dataset)
     test_loader = DataLoader(paired_test_dataset, batch_size=32, shuffle=False)
 
     # Initialize the model and load the checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SiameseNetwork().to(device)
+    model = SiameseNetwork(freeze_pretrained=True).to(device)
     checkpoint = torch.load(checkpoint_path)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()

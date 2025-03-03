@@ -2,6 +2,7 @@ import random
 from typing import Tuple, Any
 from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR10
+from torchvision import transforms
 from PIL import Image
 
 # datasets from torchvision has prebuilt access to popular datasets
@@ -19,6 +20,11 @@ from PIL import Image
 # Integrate seamlessly with Pytorch's neural networks layers and optimizers
 
 # Define transforms for normalization and resizing
+
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 class PairedDataset(Dataset):
     def __init__(self, dataset: CIFAR10) -> None:
@@ -47,4 +53,7 @@ class PairedDataset(Dataset):
             pair_label = 0
 
         img2, _ = self.dataset[idx2]
+        if self.transform is not None:
+            img1 = self.transform(img1)
+            img2 = self.transform(img2)
         return img1, img2, pair_label
