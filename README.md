@@ -17,8 +17,12 @@ A PyTorch implementation of a Siamese Network for image pair classification usin
 - **Academic Compliance**: Proper CIFAR-10 dataset citation and usage terms
 
 ## Installation
-
 ```bash
 git clone https://github.com/yourusername/siamese-transfer-learning.git
-cd siamese-transfer-learning
+```
+
+## Dependencies Installation
+```bash
 pip install -r requirements.txt
+```
+
