@@ -1,35 +1,24 @@
-# Siamese Network for Image Similarity using Transfer Learning
+# Siamese Network for Image Similarity Detection  
+**Academic Project Submission**  
+*Advanced Python Programming - Ruhr-Universität Bochum*  
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.6.0-%23EE4C2C.svg)](https://pytorch.org/)
-[![TorchVision](https://img.shields.io/badge/TorchVision-0.21.0-%23EE4C2C.svg)](https://pytorch.org/vision/stable/index.html)
+[![Academic Use](https://img.shields.io/badge/License-Academic%20Use-blue.svg)](LICENSE)
 
-## Academic Use
-This codebase was developed for educational purposes as part of Advanced Python Programming Lab at the Ruhr-Universität Bochum.  
-It is provided without warranty and intended solely for academic evaluation.
-A PyTorch implementation of a Siamese Network for image similarity detection using pretrained ResNet18 features. Designed for pair-wise classification tasks ("same class" vs "different class") on CIFAR-10 dataset.
+<img src="docs/Siamese.jpg" width="600" alt="Siamese Network Architecture">
 
-This project uses the CIFAR-10 dataset under its original terms of use.  
-Required citations can be found in:
-- [CITATION.md](CITATION.md) - BibTeX format
-- LICENSE file - Human-readable reference
+A PyTorch implementation of a Siamese Network for image pair classification using transfer learning with ResNet18 backbone. Developed for Advanced Python Programming at the Ruhr-Universität Bochum.
 
 ## Features
 
-- **PyTorch 2.6.0** with CUDA 11.8 support
-- **TorchVision 0.21.0** for dataset transformations
-- **NumPy 2.2.3** for numerical operations
-- **Matplotlib 3.10.1** for visualization support
-- **tqdm 4.67.1** for progress tracking
+- **Pair Generation**: Balanced sampling of same/different class pairs from CIFAR-10
+- **Transfer Learning**: Pretrained ResNet18 feature extraction with optional freezing
+- **Training Pipeline**: Integrated with checkpointing and metrics tracking
+- **Academic Compliance**: Proper CIFAR-10 dataset citation and usage terms
 
 ## Installation
 
-1. **Clone Repository**
 ```bash
 git clone https://github.com/yourusername/siamese-transfer-learning.git
 cd siamese-transfer-learning
-```
-
-## Install Depandencies
-```bash
 pip install -r requirements.txt
-```
