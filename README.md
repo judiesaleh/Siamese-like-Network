@@ -2,9 +2,16 @@
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.6.0-%23EE4C2C.svg)](https://pytorch.org/)
 [![TorchVision](https://img.shields.io/badge/TorchVision-0.21.0-%23EE4C2C.svg)](https://pytorch.org/vision/stable/index.html)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## Academic Use
+This codebase was developed for educational purposes as part of Advanced Python Programming Lab at the Ruhr-Universität Bochum.  
+It is provided without warranty and intended solely for academic evaluation.
 A PyTorch implementation of a Siamese Network for image similarity detection using pretrained ResNet18 features. Designed for pair-wise classification tasks ("same class" vs "different class") on CIFAR-10 dataset.
+
+This project uses the CIFAR-10 dataset under its original terms of use.  
+Required citations can be found in:
+- [CITATION.md](CITATION.md) - BibTeX format
+- LICENSE file - Human-readable reference
 
 ## Features
 
