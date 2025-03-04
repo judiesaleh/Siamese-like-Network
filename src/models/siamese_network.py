@@ -34,7 +34,7 @@ class SiameseNetwork(nn.Module):
         two images and output a binary prediction.
         """
         super(SiameseNetwork, self).__init__()
-        # Load the pretrained(pretrained=True) ResNet18 model
+        # Load the pretrained(pretrained=True) ResNet18 model as feature extractor
         self.feature_extractor = models.resnet18(pretrained=True)
         # Remove the final classification layer so that the model outputs embeddings
         # ResNet18, with its configuration, ends with a fully connected layer

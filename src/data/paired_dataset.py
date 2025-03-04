@@ -23,6 +23,7 @@ we define transforms for normalization and resizing
 """
 
 transform = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -30,7 +31,7 @@ transform = transforms.Compose([
 class PairedDataset(Dataset):
     def __init__(self, dataset: CIFAR10, transform: Any = None) -> None:
         self.dataset = dataset
-
+        self.transform = transform
         """
         Empty dictionary. key: class label, value: list of indices
         efficient: speeds up pair generation by avoiding repeated searches

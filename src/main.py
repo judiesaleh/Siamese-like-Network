@@ -1,11 +1,16 @@
 import torch
+import matplotlib.pyplot as plt
+import os
 from torch.utils.checkpoint import checkpoint
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from data.paired_dataset import PairedDataset
 from models.siamese_network import SiameseNetwork
-from training.train import train_model
+from training.train import train_model, LossMonitor, AccuracyMonitor, WeightTracker
 from training.validate import validate_model
+from training.train import WeightTracker
+
+
 
 
 
@@ -52,11 +57,15 @@ def main() -> None:
     test_loader = DataLoader(paired_test_dataset, batch_size=32, shuffle=False)
 
     # Initialize the Siamese network model
-    model = SiameseNetwork(freeze=True).to(device)
+    model = SiameseNetwork(freeze_pretrained=True).to(device)
 
     # Define the loss function and optimizer
     criterion = torch.nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+    loss_monitor = LossMonitor()
+    acc_monitor = AccuracyMonitor()
+    weight_tracker = WeightTracker(layer_name="head.0")
 
     def save_checkpoint_callback(model, epoch, loss):
         checkpoint = {
@@ -69,14 +78,36 @@ def main() -> None:
         torch.save(checkpoint, checkpoint_path)
         print(f"Checkpoint saved to {checkpoint_path}")
 
+
+    callbacks = [save_checkpoint_callback, weight_tracker]
+
     # Train the model
     num_epochs = 5
-    callbacks = [save_checkpoint_callback]
-    train_model(model, train_loader, criterion, optimizer, num_epochs, device, callbacks=callbacks)
+    train_model(model, train_loader, criterion, optimizer, num_epochs, device, callbacks=callbacks, loss_monitor=loss_monitor,
+        acc_monitor=acc_monitor, resume_from_checkpoint=None)
 
     # Validate/Test the model
     val_loss, val_acc = validate_model(model, test_loader, criterion, device)
+    print("Accuracies per epoch:", acc_monitor.epoch_accuracies)
+    print("Losses per epoch:", loss_monitor.epoch_losses)
+    print("Validation Loss:", val_loss)
     print(f"Test Loss: {val_loss:.4f}, Test Accuracy: {val_acc:.4f}")
+
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(range(1, len(loss_monitor.epoch_losses) + 1), loss_monitor.epoch_losses)
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.title("Training Loss")
+    plt.show()
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(range(1, len(loss_monitor.epoch_accuracies) + 1), loss_monitor.epoch_accuracies)
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.title("Training Accuracy")
+    plt.show()
+
 
 if __name__ == "__main__":
     main()

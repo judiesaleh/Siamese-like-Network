@@ -35,6 +35,6 @@ def test_model(checkpoint_path: str) -> None:
     print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
 
 if __name__ == "__main__":
-    # Replace with your actual checkpoint filename
+    # Replace with the version (checkpoint) of the model you want to test
     test_model('checkpoint_epoch_5.pth')
 

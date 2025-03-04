@@ -9,6 +9,7 @@ from typing import Any, Callable, List
 class LossMonitor:
     def __init__(self) -> None:
         self.losses = []
+        self.epoch_losses = []
 
     def update(self, loss: float) -> None:
         self.losses.append(loss)
@@ -16,9 +17,16 @@ class LossMonitor:
     def get_average(self) -> float:
         return sum(self.losses) / len(self.losses) if self.losses else 0.0
 
+    def record_epoch_loss(self) -> None:
+        """Store average loss per epoch and reset batch losses."""
+        epoch_loss = sum(self.losses) / len(self.losses) if self.losses else 0.0
+        self.epoch_losses.append(epoch_loss)
+        self.losses = []  # Reset losses for the next epoch
+
 # For tracking accuracy for each epoch/batches
 class AccuracyMonitor:
     def __init__(self) -> None:
+        self.epoch_accuracies = []
         self.correct = 0
         self.total = 0
 
@@ -33,6 +41,13 @@ class AccuracyMonitor:
     def get_accuracy(self) -> float:
         return self.correct / self.total if self.total > 0 else 0.0
 
+    def record_epoch_accuracy(self) -> None:
+        """Store accuracy at the end of each epoch and reset counters."""
+        accuracy = self.get_accuracy()
+        self.epoch_accuracies.append(accuracy)  # Save accuracy for this epoch
+        self.correct = 0  # Reset counters for the next epoch
+        self.total = 0
+
 class WeightTracker:
     def __init__(self, layer_name: str) -> None:
         self.layer_name = layer_name
@@ -41,9 +56,10 @@ class WeightTracker:
 
     def __call__(self, model: nn.Module, epoch: int, loss: float) -> None:
         for name, param in model.named_parameters():
-            self.weight_means.append(param.mean().item())
-            self.weight_stds.append(param.std().item())
-        print(f"Epoch {epoch+1}: {self.layer_name} - Mean: {self.weight_means[-1]:.4f}, Std: {self.weight_stds[-1]:.4f}")
+            if name == self.layer_name:
+                self.weight_means.append(param.mean().item())
+                self.weight_stds.append(param.std().item())
+                print(f"Epoch {epoch+1}: {self.layer_name} - Mean: {self.weight_means[-1]:.4f}, Std: {self.weight_stds[-1]:.4f}")
 
 def train_model(
     model: nn.Module,
@@ -56,16 +72,43 @@ def train_model(
     optimizer: optim.Optimizer,
     num_epochs: int,
     device: device,
-    callbacks: List[Callable] = None
+    callbacks: List[Callable] = None,
+    loss_monitor: LossMonitor = None,   # Accept loss monitor
+    acc_monitor: AccuracyMonitor = None,
+    resume_from_checkpoint: str = None
 ) -> None:
+    start_epoch = 0
+
+    """
+    Resume for a checkpoint. Also throws an exception if the checkpoint is empty.
+    Adjusts the variable start_epoch to start from checkpoint_epoch + 1
+    """
+    if resume_from_checkpoint:
+        try:
+            checkpoint = torch.load(resume_from_checkpoint)
+        except FileNotFoundError:
+            print("Checkpoint not found. Starting from scratch.")
+        checkpoint = torch.load(resume_from_checkpoint)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        start_epoch = checkpoint["epoch"] + 1 # resume from the next epoch
+        print(f"Resuming from epoch {start_epoch}.")
 
     model.to(device)
-    loss_monitor = LossMonitor()
-    acc_monitor = AccuracyMonitor()
+    if loss_monitor is None:
+        loss_monitor = LossMonitor()
+    if acc_monitor is None:
+        acc_monitor = AccuracyMonitor()
 
-    for epoch in range(num_epochs):
+
+    for epoch in range(start_epoch, num_epochs):
+        # Why flush=True?: This forces the print statement to display immediately
+        print(f"Starting training for epoch {epoch + 1}/{num_epochs}", flush=True)
         model.train()  # Set the model to training mode
         running_loss = 0.0
+        loss_monitor.losses = []
+        acc_monitor.correct = 0
+        acc_monitor.total = 0
         for batch in loader:
             # Unpack the batch data: two images and their binary label
             img1, img2, labels = batch
@@ -86,6 +129,7 @@ def train_model(
             loss.backward()
             optimizer.step()
 
+
             # Update running loss and accuracy metrics
             running_loss += loss.item() * img1.size(0)
             # Convert model outputs to predictions using sigmoid thresholding
@@ -96,8 +140,9 @@ def train_model(
         # Calculate average loss and accuracy for the epoch
         epoch_loss = running_loss / len(loader.dataset)
         epoch_acc = acc_monitor.get_accuracy()
+        loss_monitor.record_epoch_loss()
+        acc_monitor.record_epoch_accuracy()
         print(f"Epoch {epoch+1}/{num_epochs} - Loss: {epoch_loss:.4f}, Accuracy: {epoch_acc:.4f}")
-
         if callbacks:
             for callback in callbacks:
                 callback(model, epoch, epoch_loss)
