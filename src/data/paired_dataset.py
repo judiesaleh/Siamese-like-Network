@@ -3,6 +3,7 @@ from typing import Tuple, Any
 from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR10
 from torchvision import transforms
+from torch import Tensor
 from PIL import Image
 
 """
@@ -64,7 +65,7 @@ class PairedDataset(Dataset):
     selection of the second image plus choosing the right label accordingly
     (Check if both images belong to the same class or not)
     """
-    def __getitem__(self, index: int) -> Tuple[Any, Any, int]:
+    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor, int]:
         img1, label1 = self.dataset[index]
         """
         random choice for balanced sampling, which ensures te model sees

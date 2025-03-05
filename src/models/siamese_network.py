@@ -43,6 +43,8 @@ class SiameseNetwork(nn.Module):
         if freeze_pretrained:
             for param in self.feature_extractor.parameters():
                 param.requires_grad = False
+            for param in self.feature_extractor.layer4.parameters():
+                param.requires_grad = True
 
         """
         nn.Identity() is a PyTorch layer that simply returns
@@ -65,7 +67,8 @@ class SiameseNetwork(nn.Module):
         # Here we concatenate the two 512-dim embeddings from ResNet18.
         self.head = nn.Sequential(
             # Dimensionality reduction for efficiency
-            nn.Linear(512 * 2, 256),
+            nn.Linear(512, 512),
+            nn.BatchNorm1d(512),
 
             # Rectified Linear Unit activation function
             # inplace=True: Saves memory by modifying the input tensor directly (no copy).
@@ -73,7 +76,7 @@ class SiameseNetwork(nn.Module):
 
             # Single output for binary classification (same/different or 1/0)
             # torch.sigmoid(output) to convert to a probability (0-1)
-            nn.Linear(256, 1)
+            nn.Linear(512, 2)
         )
 
     def forward(self, img1: Tensor, img2: Tensor) -> Tensor:
@@ -91,7 +94,7 @@ class SiameseNetwork(nn.Module):
         feat1: Tensor = self.feature_extractor(img1) # Shape:(batch_size, 512)
         feat2: Tensor = self.feature_extractor(img2) # Shape:(batch_size, 512)
         # Combine the two embeddings by concatenating them along the feature dimension
-        combined: Tensor = torch.cat((feat1, feat2), dim=1)
+        combined = torch.abs(feat1 - feat2)
         # Compute the output using the head network (Now combined will go through
         # all the layers inside nn.Sequential, because head is a sequential module)
         output: Tensor = self.head(combined)
