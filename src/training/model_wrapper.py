@@ -1,10 +1,7 @@
-# basic imports
 import numpy as np
-# torch
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-# typing
 from typing import Any, TypedDict
 from numpy.typing import NDArray
 EvalDict = TypedDict('EvalDict', {'loss': float, 'acc': float})
@@ -48,6 +45,7 @@ class ModelWrapper():
         ----------
         predictions :                       A batch of network predictions.
         '''
+        # stop tracking gradients (memory efficiency)
         with torch.inference_mode():
             if type(batch) is np.ndarray:
                 batch = torch.tensor(batch, device=self.device)
@@ -84,15 +82,15 @@ class ModelWrapper():
                 else:
                     inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
-                self.optimizer.zero_grad()
-                predictions = self.model(*inputs) # Unpack tuple into img1 and img2
+                self.optimizer.zero_grad() # clears previous gradients
+                predictions = self.model(*inputs) # Unpack tuple into img1 and img2 (to pass to model)
                 loss = self.criterion(predictions, targets)
                 loss.backward()
                 self.optimizer.step()
                 # print statistics
                 running_loss += loss.item()
                 if (i + 1) % 100 == 0 and verbose:
-                    print('Epoch %d, Batch %d, Loss: %f' % (epoch + 1, i + 1, running_loss/100))
+                    print('Epoch %d, Batch %d, Loss: %f' % (epoch + 1, i + 1, running_loss/100)) # average loss per 100 batches
                     running_loss = 0.0
             if evaluate:
                 # training set

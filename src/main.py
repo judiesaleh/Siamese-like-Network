@@ -4,32 +4,14 @@ from torchvision import datasets, transforms
 from data.paired_dataset import PairedDataset
 from models.siamese_network import SiameseNetwork
 from src.training.model_wrapper import ModelWrapper
-from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
 
 
-# datasets from torchvision has prebuilt access to popular datasets
-# Can be used for downloading, preprocessing, transformation or standardization
-
-# Transforms provide preprocessing functions to modify the dataset
-# for machine learning tasks
-
-# Normalization pixel values scaling to a standard range of (like [-1, 1] or [1, 0])
-# Match pretrained models like ResNet
-
-
-# Tensors are Pytorch's primary data structure
-# Enables efficient computations on GPUs
-# Integrate seamlessly with Pytorch's neural networks layers and optimizers
-
-# Define transforms for normalization and resizing
 
 # Define image transforms
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(10),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616] )
 ])
@@ -46,7 +28,8 @@ def load_checkpoint(model, optimizer, checkpoint_path):
 
 
 
-
+# original output of getitem (image1, image2, label)
+# would break forward pass, that expects (image1, image2)
 def collate_fn(batch):
     img1_list = [item[0] for item in batch]
     img2_list = [item[1] for item in batch]
@@ -136,7 +119,6 @@ def plot_metrics(metrics: dict, save_path: str = None) -> None:
     plt.grid(True)
     plt.legend()
 
-    # Save or show
     if save_path:
         plt.savefig(save_path)
         plt.close()
