@@ -9,20 +9,30 @@
 
 A PyTorch implementation of a Siamese Network for image pair classification using transfer learning with ResNet18 backbone. Developed for Advanced Python Programming at the Ruhr-Universität Bochum.
 
-## Features
+## Key Features
 
-- **Pair Generation**: Balanced sampling of same/different class pairs from CIFAR-10
-- **Transfer Learning**: Pretrained ResNet18 feature extraction with optional freezing
-- **Training Pipeline**: Integrated with checkpointing and metrics tracking
-- **Academic Compliance**: Proper CIFAR-10 dataset citation and usage terms
+- **Balanced Pair Generation**: Dynamic pair sampling from CIFAR-10 with 50% same-class and 50% different-class pairs
+- **Modified ResNet18 Backbone**: 
+  - Pretrained feature extraction with optional freezing
+  - Final FC layer replaced with identity mapping
+  - Custom head network with dimensionality reduction
+- **Training Infrastructure**:
+  - Automatic checkpointing after each epoch
+  - GPU acceleration support
+  - Integrated metrics tracking (loss & accuracy)
+  - Visualization of training curves
+- **Modular Architecture**:
+  - Separate components for data processing, model definition, and training logic
+  - Custom collate function for pair handling
+
 
 ## Installation
 ```bash
-git clone https://github.com/yourusername/siamese-transfer-learning.git
-```
-
-## Dependencies Installation
-```bash
+git clone https://github.com/judiesaleh/siamese-transfer-learning.git
 pip install -r requirements.txt
 ```
 
+## Training
+```
+python main.py
+```
